@@ -147,7 +147,7 @@ export default function Home() {
             onClick={surprise}
             className="brut-btn rounded-full border-[3px] border-ink bg-sun px-4 py-1.5 text-sm font-bold text-ink"
           >
-            🎲 Surprise me
+            Surprise me
           </button>
           {!html &&
             EXAMPLES.map((e, i) => (
@@ -166,7 +166,7 @@ export default function Home() {
   );
 
   return (
-    <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col px-5 py-8">
+    <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col px-6 py-8">
       {/* Top bar */}
       <header className="mb-8 flex items-center justify-between">
         <h1 className="font-display text-3xl font-bold tracking-tight">
@@ -193,7 +193,7 @@ export default function Home() {
           <section className="grid items-center gap-8 lg:grid-cols-[1fr_1.05fr] lg:gap-10">
             <div className="relative">
               <span className="mb-5 inline-block rotate-[-2deg] border-[3px] border-ink bg-sun px-3 py-1 font-mono text-xs font-bold">
-                ✨ powered by GPT-5.6
+                powered by GPT-5.6
               </span>
               <h2 className="font-display text-5xl font-bold leading-[0.95] tracking-tight sm:text-6xl">
                 Ask anything.{" "}
@@ -217,7 +217,7 @@ export default function Home() {
                   className="h-[380px] w-full"
                 />
                 <figcaption className="flex items-center gap-2 border-t-[3px] border-ink bg-sky px-4 py-2.5 text-sm font-bold text-ink">
-                  <span className="rotate-[-3deg] bg-ink px-2 py-0.5 text-paper">☝ a real one</span>
+                  <span className="rotate-[-3deg] bg-ink px-2 py-0.5 text-paper">a real one</span>
                   <span>Made by asking, not by hand.</span>
                 </figcaption>
               </div>
@@ -249,18 +249,34 @@ export default function Home() {
       )}
 
       <div className="mt-6 flex-1">
-        {/* DRAWING — guess-first + playful sketch indicator */}
+        {/* DRAWING — reserve the animation's full footprint so nothing jumps */}
         {phase === "drawing" && (
-          <div className="pop grid items-start gap-4 sm:grid-cols-2">
-            <div className="brut rounded-xl border-[3px] border-ink bg-lime p-4">
-              <div className="mb-2 flex items-center gap-2">
-                <Star className="bob h-5 w-5 text-ink" />
-                <span className="font-display font-bold">While I draw this…</span>
+          <div className="pop">
+            <div
+              className="brut-lg flex h-[520px] flex-col items-center justify-center gap-6 rounded-xl border-[3px] border-ink bg-slate"
+              aria-hidden="true"
+            >
+              <Scribble className="h-24 w-24 text-lime" />
+              <div className="text-center">
+                <div className="font-display text-2xl font-bold text-paper">
+                  {SKETCHING[tick % SKETCHING.length]}
+                </div>
+                <div className="mt-2 font-mono text-sm font-bold text-sky tabular-nums">
+                  {code.length.toLocaleString()} chalk strokes and counting
+                </div>
               </div>
-              <p className="text-sm font-semibold text-ink/80">
-                What do <span className="underline decoration-2">you</span> think? Guessing first
-                makes it stick.
-              </p>
+              <div className="h-1.5 w-56 overflow-hidden rounded-full border-2 border-line bg-slate">
+                <div className="h-full w-1/3 animate-[slide_1.1s_ease-in-out_infinite] bg-lime" />
+              </div>
+            </div>
+
+            <div className="brut mt-4 flex flex-col gap-3 rounded-xl border-[3px] border-ink bg-lime p-4 sm:flex-row sm:items-center sm:gap-5">
+              <div className="shrink-0">
+                <div className="font-display text-lg font-bold">While I draw — what do you think?</div>
+                <div className="text-sm font-semibold text-ink/70">
+                  Guessing first makes the answer stick.
+                </div>
+              </div>
               <label htmlFor="guess" className="sr-only">
                 Your guess
               </label>
@@ -269,23 +285,8 @@ export default function Home() {
                 value={guess}
                 onChange={(e) => setGuess(e.target.value)}
                 placeholder="Type your hunch…"
-                className="mt-2 h-16 w-full resize-none rounded-lg border-[3px] border-ink bg-white px-3 py-2 text-ink outline-none placeholder:text-ink/40"
+                className="h-14 flex-1 resize-none rounded-lg border-[3px] border-ink bg-white px-3 py-2 text-ink outline-none placeholder:text-ink/40"
               />
-            </div>
-
-            <div
-              className="brut flex items-center gap-4 rounded-xl border-[3px] border-ink bg-sky p-4"
-              aria-hidden="true"
-            >
-              <Scribble className="h-12 w-12 shrink-0 text-ink" />
-              <div className="min-w-0">
-                <div className="font-display font-bold text-ink">
-                  {SKETCHING[tick % SKETCHING.length]}
-                </div>
-                <div className="mt-1 font-mono text-xs font-bold text-ink/70 tabular-nums">
-                  {code.length.toLocaleString()} chalk strokes
-                </div>
-              </div>
             </div>
           </div>
         )}
@@ -300,10 +301,10 @@ export default function Home() {
                   srcDoc={html}
                   sandbox="allow-scripts"
                   title={`Animated answer to: ${asked}`}
-                  className="h-[500px] w-full"
+                  className="h-[520px] w-full"
                 />
               ) : (
-                <div className="flex h-[500px] items-center justify-center p-8">
+                <div className="flex h-[520px] items-center justify-center p-8">
                   <p className="max-w-lg text-center text-lg font-semibold leading-relaxed text-paper">
                     {explain || "No text explanation was provided for this one."}
                   </p>
@@ -321,7 +322,7 @@ export default function Home() {
                     className="brut-btn rounded-full border-[3px] border-ink bg-sky px-3 py-1 font-bold text-ink"
                     aria-pressed={readMode}
                   >
-                    {readMode ? "▶ Watch it" : "📖 Read it instead"}
+                    {readMode ? "Watch it" : "Read it instead"}
                   </button>
                 )}
               </figcaption>

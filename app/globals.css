@@ -65,6 +65,11 @@ body {
   100% { stroke-dashoffset: -120; }
 }
 
+@keyframes slide {
+  0% { transform: translateX(-120%); }
+  100% { transform: translateX(380%); }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.001ms !important;
