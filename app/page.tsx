@@ -1,12 +1,20 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 const EXAMPLES = [
   "why do seasons happen? isn't it distance from the sun?",
   "how does a black hole bend light?",
   "what actually happens in a recession?",
   "how does a neural network learn?",
+];
+
+const SKETCHING = [
+  "finding the physics…",
+  "sharpening the chalk…",
+  "drawing the diagram…",
+  "labelling the parts…",
+  "adding the motion…",
 ];
 
 type Phase = "idle" | "drawing" | "done";
@@ -33,7 +41,13 @@ export default function Home() {
   const [guess, setGuess] = useState("");
   const [readMode, setReadMode] = useState(false);
   const [err, setErr] = useState<string | null>(null);
-  const codeRef = useRef<HTMLPreElement>(null);
+  const [tick, setTick] = useState(0);
+
+  useEffect(() => {
+    if (phase !== "drawing") return;
+    const id = setInterval(() => setTick((t) => t + 1), 1500);
+    return () => clearInterval(id);
+  }, [phase]);
 
   const ask = useCallback(
     async (question: string) => {
@@ -65,9 +79,6 @@ export default function Home() {
           if (done) break;
           raw += dec.decode(value, { stream: true });
           setCode(raw);
-          requestAnimationFrame(() => {
-            if (codeRef.current) codeRef.current.scrollTop = codeRef.current.scrollHeight;
-          });
         }
 
         setExplain(extractExplain(raw));
@@ -147,17 +158,17 @@ export default function Home() {
       </p>
 
       <div className="mt-6 flex-1">
-        {/* DRAWING — guess-first + code stream */}
+        {/* DRAWING — guess-first + a playful sketch indicator */}
         {phase === "drawing" && (
-          <div className="pop grid gap-4 md:grid-cols-[1fr_1fr]">
-            <div className="rounded-2xl border-2 border-line bg-board p-5">
-              <div className="mb-3 flex items-center gap-2">
-                <Star className="bob h-6 w-6 text-yellow" />
+          <div className="pop grid items-start gap-4 sm:grid-cols-2">
+            <div className="rounded-2xl border-2 border-line bg-board p-4">
+              <div className="mb-2 flex items-center gap-2">
+                <Star className="bob h-5 w-5 text-yellow" />
                 <span className="font-display font-semibold">While I draw this…</span>
               </div>
               <p className="text-sm text-dim">
-                What do <em className="text-chalk not-italic font-semibold">you</em> think the answer is?
-                Guessing first makes it stick.
+                What do <em className="not-italic font-semibold text-chalk">you</em> think? Guessing
+                first makes it stick.
               </p>
               <label htmlFor="guess" className="sr-only">
                 Your guess
@@ -167,22 +178,23 @@ export default function Home() {
                 value={guess}
                 onChange={(e) => setGuess(e.target.value)}
                 placeholder="Type your hunch…"
-                className="mt-3 h-24 w-full resize-none rounded-xl border-2 border-line bg-slate px-3 py-2 text-chalk outline-none placeholder:text-dim/60 focus:border-mint"
+                className="mt-2 h-16 w-full resize-none rounded-xl border-2 border-line bg-slate px-3 py-2 text-chalk outline-none placeholder:text-dim/60 focus:border-mint"
               />
             </div>
 
-            <div className="flex min-h-[13rem] flex-col rounded-2xl border-2 border-line bg-slate p-4">
-              <div className="mb-2 flex items-center gap-2 text-xs text-dim">
-                <span className="h-2 w-2 animate-pulse rounded-full bg-mint" />
-                sketching the animation…
+            <div
+              className="flex items-center gap-4 rounded-2xl border-2 border-line bg-board p-4"
+              aria-hidden="true"
+            >
+              <Scribble className="h-12 w-12 shrink-0 text-mint" />
+              <div className="min-w-0">
+                <div className="font-display font-semibold text-chalk">
+                  {SKETCHING[tick % SKETCHING.length]}
+                </div>
+                <div className="mt-1 font-mono text-xs text-dim tabular-nums">
+                  {code.length.toLocaleString()} chalk strokes
+                </div>
               </div>
-              <pre
-                ref={codeRef}
-                aria-hidden="true"
-                className="flex-1 overflow-hidden whitespace-pre-wrap break-all font-mono text-[10px] leading-relaxed text-mint/70"
-              >
-                {code.slice(-1400) || "​"}
-              </pre>
             </div>
           </div>
         )}
@@ -236,6 +248,20 @@ export default function Home() {
         )}
       </div>
     </main>
+  );
+}
+
+function Scribble({ className = "" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 48 48" fill="none" className={className} aria-hidden="true">
+      <path
+        d="M6 32 C 12 10, 20 44, 26 22 S 38 8, 44 30"
+        stroke="currentColor"
+        strokeWidth="3"
+        strokeLinecap="round"
+        className="scribble"
+      />
+    </svg>
   );
 }
 

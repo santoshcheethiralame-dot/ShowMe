@@ -73,6 +73,18 @@ body {
 }
 .bob { animation: bob 2.4s ease-in-out infinite; }
 
+/* Chalk stroke that draws itself, over and over. */
+.scribble {
+  stroke-dasharray: 120;
+  stroke-dashoffset: 120;
+  animation: draw 1.8s ease-in-out infinite;
+}
+@keyframes draw {
+  0% { stroke-dashoffset: 120; }
+  55% { stroke-dashoffset: 0; }
+  100% { stroke-dashoffset: -120; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.001ms !important;
