@@ -253,6 +253,25 @@ export default function Home() {
               </div>
             ))}
           </section>
+
+          {/* Closing CTA — fills the tail of the page and sends you back up */}
+          <section className="brut-lg mt-10 mb-4 flex flex-col items-center gap-4 rounded-2xl border-[3px] border-ink bg-violet p-8 text-center text-paper sm:p-10">
+            <h3 className="font-display text-3xl font-bold leading-tight sm:text-4xl">
+              Textbooks give everyone the same picture.
+              <br />
+              ShowMe gives you <span className="bg-sun px-2 text-ink">yours</span>.
+            </h3>
+            <button
+              onClick={() => {
+                const el = document.getElementById("ask");
+                el?.scrollIntoView({ behavior: "smooth", block: "center" });
+                (el as HTMLInputElement | null)?.focus();
+              }}
+              className="brut-btn mt-1 rounded-lg border-[3px] border-ink bg-sun px-7 py-3.5 font-display text-lg font-bold text-ink"
+            >
+              Ask your first question
+            </button>
+          </section>
         </>
       ) : (
         askBar
