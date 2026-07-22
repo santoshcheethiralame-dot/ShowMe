@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { FIXTURES } from "@/lib/fixtures";
 
 const EXAMPLES = [
   "why do seasons happen? isn't it distance from the sun?",
@@ -179,6 +180,24 @@ export default function Home() {
         <p role="alert" className="mt-4 border-[3px] border-ink bg-coral px-3 py-2 font-bold text-paper">
           {err}
         </p>
+      )}
+
+      {/* Hero showcase — a real answer, already running */}
+      {phase === "idle" && !html && (
+        <figure className="pop m-0 mt-6">
+          <div className="brut-lg overflow-hidden rounded-xl border-[3px] border-ink bg-slate">
+            <iframe
+              srcDoc={FIXTURES[0].html}
+              sandbox="allow-scripts"
+              title="Example animation: why do seasons happen"
+              className="h-[420px] w-full"
+            />
+            <figcaption className="flex items-center gap-2 border-t-[3px] border-ink bg-sun px-4 py-2.5 text-sm font-bold text-ink">
+              <span className="rotate-[-3deg] bg-ink px-2 py-0.5 text-paper">☝ a real answer</span>
+              <span>Now ask your own up top — anything at all.</span>
+            </figcaption>
+          </div>
+        </figure>
       )}
 
       <p aria-live="polite" className="sr-only">
