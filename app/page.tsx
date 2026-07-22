@@ -115,23 +115,10 @@ export default function Home() {
 
   const surprise = () => ask(SURPRISES[Math.floor(tick + Date.now()) % SURPRISES.length]);
 
-  return (
-    <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col px-5 py-10">
-      {/* Header */}
-      <header className="mb-8 flex items-end justify-between border-b-[3px] border-ink pb-5">
-        <div>
-          <h1 className="font-display text-4xl font-bold tracking-tight">
-            Show<span className="bg-violet px-1.5 text-paper">Me</span>
-          </h1>
-          <p className="mt-2 font-body text-ink/70">
-            Stop reading explanations.{" "}
-            <span className="font-bold text-ink">Watch one drawn for your question.</span>
-          </p>
-        </div>
-        <Star className="bob hidden h-10 w-10 text-violet sm:block" />
-      </header>
+  const landing = phase === "idle" && !html;
 
-      {/* Ask row */}
+  const askBar = (
+    <div>
       <div className="flex flex-col gap-3 sm:flex-row">
         <label htmlFor="ask" className="sr-only">
           Ask a question to visualize
@@ -143,12 +130,12 @@ export default function Home() {
           onKeyDown={(e) => e.key === "Enter" && ask(q, prior)}
           placeholder={html ? "Ask a follow-up…" : "Ask anything — “why is the sky blue?”"}
           disabled={phase === "drawing"}
-          className="brut flex-1 rounded-lg border-[3px] border-ink bg-white px-4 py-3 text-ink outline-none placeholder:text-ink/40 disabled:opacity-60"
+          className="brut flex-1 rounded-lg border-[3px] border-ink bg-white px-4 py-3.5 text-lg text-ink outline-none placeholder:text-ink/40 disabled:opacity-60"
         />
         <button
           onClick={() => ask(q, prior)}
           disabled={phase === "drawing" || !q.trim()}
-          className="brut-btn rounded-lg border-[3px] border-ink bg-violet px-6 py-3 font-display font-bold text-paper"
+          className="brut-btn rounded-lg border-[3px] border-ink bg-violet px-7 py-3.5 font-display text-lg font-bold text-paper"
         >
           {phase === "drawing" ? "Drawing…" : "Show me"}
         </button>
@@ -170,39 +157,96 @@ export default function Home() {
                 className="brut-btn rounded-full border-[3px] border-ink px-3 py-1.5 text-sm font-semibold"
                 style={{ background: ["#b8f13a", "#37c8ff", "#ff5a5f", "#ffc83a"][i % 4] }}
               >
-                {e.length > 36 ? e.slice(0, 34) + "…" : e}
+                {e.length > 34 ? e.slice(0, 32) + "…" : e}
               </button>
             ))}
         </div>
       )}
+    </div>
+  );
+
+  return (
+    <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col px-5 py-8">
+      {/* Top bar */}
+      <header className="mb-8 flex items-center justify-between">
+        <h1 className="font-display text-3xl font-bold tracking-tight">
+          Show<span className="bg-violet px-1.5 text-paper">Me</span>
+        </h1>
+        <span className="hidden rotate-[2deg] border-[3px] border-ink bg-lime px-3 py-1 font-mono text-xs font-bold sm:block">
+          science, drawn on demand
+        </span>
+      </header>
 
       {err && (
-        <p role="alert" className="mt-4 border-[3px] border-ink bg-coral px-3 py-2 font-bold text-paper">
+        <p role="alert" className="mb-4 border-[3px] border-ink bg-coral px-3 py-2 font-bold text-paper">
           {err}
         </p>
-      )}
-
-      {/* Hero showcase — a real answer, already running */}
-      {phase === "idle" && !html && (
-        <figure className="pop m-0 mt-6">
-          <div className="brut-lg overflow-hidden rounded-xl border-[3px] border-ink bg-slate">
-            <iframe
-              srcDoc={FIXTURES[0].html}
-              sandbox="allow-scripts"
-              title="Example animation: why do seasons happen"
-              className="h-[420px] w-full"
-            />
-            <figcaption className="flex items-center gap-2 border-t-[3px] border-ink bg-sun px-4 py-2.5 text-sm font-bold text-ink">
-              <span className="rotate-[-3deg] bg-ink px-2 py-0.5 text-paper">☝ a real answer</span>
-              <span>Now ask your own up top — anything at all.</span>
-            </figcaption>
-          </div>
-        </figure>
       )}
 
       <p aria-live="polite" className="sr-only">
         {phase === "drawing" ? "Drawing your answer, please wait." : phase === "done" ? "Your animation is ready." : ""}
       </p>
+
+      {/* LANDING — big composed hero */}
+      {landing ? (
+        <>
+          <section className="grid items-center gap-8 lg:grid-cols-[1fr_1.05fr] lg:gap-10">
+            <div className="relative">
+              <span className="mb-5 inline-block rotate-[-2deg] border-[3px] border-ink bg-sun px-3 py-1 font-mono text-xs font-bold">
+                ✨ powered by GPT-5.6
+              </span>
+              <h2 className="font-display text-5xl font-bold leading-[0.95] tracking-tight sm:text-6xl">
+                Ask anything.{" "}
+                <span className="bg-coral px-2 text-paper [box-decoration-break:clone]">Watch</span>{" "}
+                it drawn.
+              </h2>
+              <p className="mt-5 max-w-md text-lg font-semibold text-ink/70">
+                Not the same textbook diagram everyone gets — a custom animation, built live for
+                <span className="text-ink"> your exact question.</span>
+              </p>
+              <div className="mt-7">{askBar}</div>
+            </div>
+
+            <figure className="pop relative m-0">
+              <Star className="bob absolute -left-4 -top-4 z-10 h-9 w-9 text-violet" />
+              <div className="brut-lg overflow-hidden rounded-xl border-[3px] border-ink bg-slate">
+                <iframe
+                  srcDoc={FIXTURES[0].html}
+                  sandbox="allow-scripts"
+                  title="Example animation: why do seasons happen"
+                  className="h-[380px] w-full"
+                />
+                <figcaption className="flex items-center gap-2 border-t-[3px] border-ink bg-sky px-4 py-2.5 text-sm font-bold text-ink">
+                  <span className="rotate-[-3deg] bg-ink px-2 py-0.5 text-paper">☝ a real one</span>
+                  <span>Made by asking, not by hand.</span>
+                </figcaption>
+              </div>
+            </figure>
+          </section>
+
+          {/* How it works */}
+          <section className="mt-14 grid gap-4 sm:grid-cols-3">
+            {[
+              { n: "1", t: "Ask", d: "Type any question. Big or weird, doesn't matter.", c: "#b8f13a" },
+              { n: "2", t: "Watch it draw", d: "GPT-5.6 builds a live animation, in front of you.", c: "#37c8ff" },
+              { n: "3", t: "Actually get it", d: "See the mechanism move — then read it, or dig deeper.", c: "#ff5a5f" },
+            ].map((s) => (
+              <div key={s.n} className="brut rounded-xl border-[3px] border-ink bg-white p-5">
+                <span
+                  className="flex h-11 w-11 items-center justify-center border-[3px] border-ink font-display text-xl font-bold"
+                  style={{ background: s.c }}
+                >
+                  {s.n}
+                </span>
+                <h3 className="mt-3 font-display text-xl font-bold">{s.t}</h3>
+                <p className="mt-1 text-sm font-semibold text-ink/70">{s.d}</p>
+              </div>
+            ))}
+          </section>
+        </>
+      ) : (
+        askBar
+      )}
 
       <div className="mt-6 flex-1">
         {/* DRAWING — guess-first + playful sketch indicator */}
