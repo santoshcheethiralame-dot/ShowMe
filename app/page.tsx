@@ -223,7 +223,7 @@ export default function Home() {
                 <iframe
                   srcDoc={FIXTURES[0].html}
                   sandbox="allow-scripts"
-                  title="Example animation: why do seasons happen"
+                  title="Example animation: how planets stay in orbit"
                   className="h-[380px] w-full"
                 />
                 <figcaption className="flex items-center gap-2 border-t-[3px] border-ink bg-sky px-4 py-2.5 text-sm font-bold text-ink">
