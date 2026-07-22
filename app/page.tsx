@@ -200,17 +200,17 @@ export default function Home() {
       {/* LANDING — big composed hero */}
       {landing ? (
         <>
-          <section className="grid items-center gap-8 lg:grid-cols-[1fr_1.05fr] lg:gap-10">
+          <section className="grid items-center gap-10 lg:grid-cols-[1fr_1.05fr] lg:gap-14">
             <div className="relative">
-              <span className="mb-5 inline-block rotate-[-2deg] border-[3px] border-ink bg-sun px-3 py-1 font-mono text-xs font-bold">
+              <span className="mb-6 inline-block rotate-[-2deg] border-[3px] border-ink bg-sun px-4 py-1.5 font-mono text-sm font-bold">
                 powered by GPT-5.6
               </span>
-              <h2 className="font-display text-5xl font-bold leading-[0.95] tracking-tight sm:text-6xl">
+              <h2 className="font-display text-6xl font-bold leading-[0.95] tracking-tight sm:text-7xl">
                 Ask anything.{" "}
                 <span className="bg-coral px-2 text-paper [box-decoration-break:clone]">Watch</span>{" "}
                 it drawn.
               </h2>
-              <p className="mt-5 max-w-md text-lg font-semibold text-ink/70">
+              <p className="mt-6 max-w-lg text-xl font-semibold text-ink/70">
                 Not the same textbook diagram everyone gets — a custom animation, built live for
                 <span className="text-ink"> your exact question.</span>
               </p>
@@ -218,13 +218,13 @@ export default function Home() {
             </div>
 
             <figure className="pop relative m-0">
-              <Star className="bob absolute -left-4 -top-4 z-10 h-9 w-9 text-violet" />
+              <Star className="bob absolute -left-5 -top-5 z-10 h-12 w-12 text-violet" />
               <div className="brut-lg overflow-hidden rounded-xl border-[3px] border-ink bg-slate">
                 <iframe
                   srcDoc={FIXTURES[0].html}
                   sandbox="allow-scripts"
                   title="Example animation: how a pendulum swings"
-                  className="h-[380px] w-full"
+                  className="h-[500px] w-full"
                 />
                 <figcaption className="flex items-center gap-2 border-t-[3px] border-ink bg-sky px-4 py-2.5 text-sm font-bold text-ink">
                   <span className="rotate-[-3deg] bg-ink px-2 py-0.5 text-paper">a real one</span>
