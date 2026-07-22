@@ -1,17 +1,82 @@
 @import "tailwindcss";
 
+/*
+ * Chalkboard. Dark slate, chalk-white marks, four warm accent chalks. Playful
+ * and legible — the animation is the star, the frame is a friendly classroom
+ * board around it.
+ */
 @theme {
-  --color-void: #0b0b0d;
-  --color-panel: #141418;
-  --color-ink: #ece6d9;
-  --color-dim: #8f8a7e;
-  --color-line: #26241f;
-  --color-amber: #ffd23e;
+  --color-slate: #0f1613;
+  --color-board: #16211c;
+  --color-chalk: #f4f1e6;
+  --color-dim: #93a39a;
+  --color-line: #2a3a32;
+  --color-yellow: #ffd23e;
+  --color-coral: #ff6f5e;
+  --color-sky: #5bc8ff;
+  --color-mint: #78e0b0;
+
+  --font-display: var(--font-fredoka), system-ui, sans-serif;
+  --font-body: var(--font-nunito), system-ui, sans-serif;
 }
 
 body {
-  background: var(--color-void);
-  color: var(--color-ink);
-  font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
+  background: var(--color-slate);
+  color: var(--color-chalk);
+  font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
+  /* faint chalk-dust vignette */
+  background-image: radial-gradient(
+    1200px 600px at 50% -10%,
+    rgba(255, 255, 255, 0.035),
+    transparent 70%
+  );
+}
+
+/* Visible focus for keyboard users, everywhere. */
+:focus-visible {
+  outline: 3px solid var(--color-yellow);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* Screen-reader-only text. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@keyframes pop {
+  0% { transform: scale(0.96); opacity: 0; }
+  60% { transform: scale(1.01); }
+  100% { transform: scale(1); opacity: 1; }
+}
+.pop { animation: pop 0.35s cubic-bezier(0.2, 0.9, 0.3, 1.2) both; }
+
+@keyframes wiggle {
+  0%, 100% { transform: rotate(0); }
+  25% { transform: rotate(-2.5deg); }
+  75% { transform: rotate(2.5deg); }
+}
+.wiggle:hover { animation: wiggle 0.4s ease-in-out; }
+
+@keyframes bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+.bob { animation: bob 2.4s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
 }
