@@ -235,7 +235,7 @@ export default function Home() {
           </section>
 
           {/* How it works */}
-          <section className="mt-14 grid gap-4 sm:grid-cols-3">
+          <section className="mt-10 grid gap-4 sm:grid-cols-3">
             {[
               { n: "1", t: "Ask", d: "Type any question. Big or weird, doesn't matter.", c: "#b8f13a" },
               { n: "2", t: "Watch it draw", d: "GPT-5.6 builds a live animation, in front of you.", c: "#37c8ff" },
@@ -254,12 +254,11 @@ export default function Home() {
             ))}
           </section>
 
-          {/* Closing CTA — fills the tail of the page and sends you back up */}
-          <section className="brut-lg mt-10 mb-4 flex flex-col items-center gap-4 rounded-2xl border-[3px] border-ink bg-violet p-8 text-center text-paper sm:p-10">
-            <h3 className="font-display text-3xl font-bold leading-tight sm:text-4xl">
-              Textbooks give everyone the same picture.
-              <br />
-              ShowMe gives you <span className="bg-sun px-2 text-ink">yours</span>.
+          {/* Closing CTA — caps the page and sends you back up */}
+          <section className="brut mt-8 flex flex-col items-center justify-between gap-4 rounded-2xl border-[3px] border-ink bg-violet px-7 py-5 text-center text-paper sm:flex-row sm:text-left">
+            <h3 className="font-display text-xl font-bold leading-tight sm:text-2xl">
+              Textbooks give everyone the same picture. ShowMe gives you{" "}
+              <span className="bg-sun px-1.5 text-ink">yours</span>.
             </h3>
             <button
               onClick={() => {
@@ -267,9 +266,9 @@ export default function Home() {
                 el?.scrollIntoView({ behavior: "smooth", block: "center" });
                 (el as HTMLInputElement | null)?.focus();
               }}
-              className="brut-btn mt-1 rounded-lg border-[3px] border-ink bg-sun px-7 py-3.5 font-display text-lg font-bold text-ink"
+              className="brut-btn shrink-0 rounded-lg border-[3px] border-ink bg-sun px-6 py-3 font-display font-bold text-ink"
             >
-              Ask your first question
+              Ask a question
             </button>
           </section>
         </>
