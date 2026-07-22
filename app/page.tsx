@@ -142,24 +142,34 @@ export default function Home() {
       </div>
 
       {phase !== "drawing" && (
-        <div className="mt-4 flex flex-wrap items-center gap-2">
-          <button
-            onClick={surprise}
-            className="brut-btn rounded-full border-[3px] border-ink bg-sun px-4 py-1.5 text-sm font-bold text-ink"
-          >
-            Surprise me
-          </button>
-          {!html &&
-            EXAMPLES.map((e, i) => (
-              <button
-                key={e}
-                onClick={() => ask(e)}
-                className="brut-btn rounded-full border-[3px] border-ink px-3 py-1.5 text-sm font-semibold"
-                style={{ background: ["#b8f13a", "#37c8ff", "#ff5a5f", "#ffc83a"][i % 4] }}
-              >
-                {e.length > 34 ? e.slice(0, 32) + "…" : e}
-              </button>
-            ))}
+        <div className="mt-4">
+          {!html && (
+            <p className="mb-2 font-mono text-xs font-bold uppercase tracking-wide text-ink/50">
+              or try one
+            </p>
+          )}
+          <div className="flex flex-wrap items-stretch gap-3">
+            <button
+              onClick={surprise}
+              className="brut-btn shrink-0 rounded-lg border-[3px] border-ink bg-lime px-4 py-2.5 text-sm font-bold text-ink"
+            >
+              Surprise me
+            </button>
+            {!html && (
+              <div className="grid flex-1 grid-cols-1 gap-3 sm:grid-cols-2">
+                {EXAMPLES.map((e, i) => (
+                  <button
+                    key={e}
+                    onClick={() => ask(e)}
+                    className="brut-btn truncate rounded-lg border-[3px] border-ink px-4 py-2.5 text-left text-sm font-semibold text-ink"
+                    style={{ background: ["#b8f13a", "#37c8ff", "#ff5a5f", "#ffc83a"][i % 4] }}
+                  >
+                    {e}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       )}
     </div>
@@ -168,11 +178,11 @@ export default function Home() {
   return (
     <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col px-6 py-8">
       {/* Top bar */}
-      <header className="mb-8 flex items-center justify-between">
+      <header className="mb-10 flex items-center justify-between">
         <h1 className="font-display text-3xl font-bold tracking-tight">
           Show<span className="bg-violet px-1.5 text-paper">Me</span>
         </h1>
-        <span className="hidden rotate-[2deg] border-[3px] border-ink bg-lime px-3 py-1 font-mono text-xs font-bold sm:block">
+        <span className="hidden border-[3px] border-ink bg-white px-3 py-1 font-mono text-xs font-bold sm:block">
           science, drawn on demand
         </span>
       </header>
