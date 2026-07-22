@@ -176,7 +176,7 @@ export default function Home() {
   );
 
   return (
-    <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col px-6 py-8">
+    <main className="mx-auto flex w-full max-w-[1600px] flex-1 flex-col px-8 py-8">
       {/* Top bar */}
       <header className="mb-10 flex items-center justify-between">
         <h1 className="font-display text-3xl font-bold tracking-tight">
