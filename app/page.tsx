@@ -1,65 +1,120 @@
-import Image from "next/image";
+"use client";
+
+import { useState } from "react";
+
+const EXAMPLES = [
+  "why do seasons happen? isn't it distance from the sun?",
+  "how does a black hole bend light?",
+  "what actually happens during a recession?",
+  "how does a neural network learn?",
+];
 
 export default function Home() {
+  const [q, setQ] = useState("");
+  const [html, setHtml] = useState<string | null>(null);
+  const [prior, setPrior] = useState<string | undefined>();
+  const [busy, setBusy] = useState(false);
+  const [live, setLive] = useState<boolean | null>(null);
+  const [err, setErr] = useState<string | null>(null);
+
+  async function ask(question: string) {
+    if (!question.trim() || busy) return;
+    setBusy(true);
+    setErr(null);
+    try {
+      const r = await fetch("/api/animate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ question, priorQuestion: html ? prior : undefined }),
+      }).then((res) => res.json());
+      if (r.html) {
+        setHtml(r.html);
+        setLive(r.live ?? null);
+        setPrior(question);
+        setQ("");
+      } else {
+        setErr("Could not build that one. Try rephrasing.");
+      }
+    } catch {
+      setErr("Something broke. Try again.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+    <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col px-5 py-10">
+      <header className="mb-8">
+        <h1 className="text-2xl font-extrabold tracking-tight">
+          Show<span className="text-amber">Me</span>
+        </h1>
+        <p className="mt-1 text-dim">
+          Stop reading explanations.{" "}
+          <span className="text-ink">Watch one built for your question.</span>
+        </p>
+      </header>
+
+      <div className="flex gap-2">
+        <input
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && ask(q)}
+          placeholder={html ? "Ask a follow-up…" : "Ask anything — “why is the sky blue?”"}
+          disabled={busy}
+          className="flex-1 rounded-lg border border-line bg-panel px-4 py-3 text-ink outline-none placeholder:text-dim/70 focus:border-dim"
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+        <button
+          onClick={() => ask(q)}
+          disabled={busy || !q.trim()}
+          className="rounded-lg bg-amber px-5 py-3 font-semibold text-void transition hover:brightness-110 disabled:bg-line disabled:text-dim"
+        >
+          {busy ? "Building…" : "Show me"}
+        </button>
+      </div>
+
+      {!html && (
+        <div className="mt-4 flex flex-wrap gap-2">
+          {EXAMPLES.map((e) => (
+            <button
+              key={e}
+              onClick={() => ask(e)}
+              disabled={busy}
+              className="rounded-full border border-line px-3 py-1.5 text-sm text-dim hover:border-dim hover:text-ink"
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+              {e.length > 42 ? e.slice(0, 40) + "…" : e}
+            </button>
+          ))}
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+      )}
+
+      {err && <p className="mt-4 text-sm text-amber">{err}</p>}
+
+      <div className="mt-6 flex-1">
+        {busy && !html && (
+          <div className="flex h-[520px] items-center justify-center rounded-xl border border-line bg-panel">
+            <span className="animate-pulse font-mono text-sm text-dim">
+              drawing your answer…
+            </span>
+          </div>
+        )}
+
+        {html && (
+          <div className="overflow-hidden rounded-xl border border-line bg-void">
+            <iframe
+              key={html.length + (prior ?? "")}
+              srcDoc={html}
+              sandbox="allow-scripts"
+              className="h-[520px] w-full"
+              title="animation"
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+            {live === false && (
+              <div className="border-t border-line px-4 py-2 font-mono text-xs text-dim">
+                pre-built example · add a key to generate any question live
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    </main>
   );
 }
