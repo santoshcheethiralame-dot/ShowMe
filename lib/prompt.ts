@@ -17,7 +17,7 @@ Then the document. Hard rules:
 - Everything inline: one <style>, one <script>. No external URLs, imports, CDNs, or web fonts. Use system sans-serif.
 - Use <canvas> with vanilla JS (requestAnimationFrame), or animated SVG. Prefer canvas for motion.
 - The animation must depict the REAL mechanism behind the answer, not decoration. If the question implies a common misconception, visibly correct it.
-- Fit a responsive stage (read the container width; never hardcode a huge canvas). Target ~820x520.
+- Fit a responsive stage targeting ~820x520. Size the canvas from window.innerWidth / window.innerHeight (the frame's viewport — always available), and re-size on the window "resize" event. NEVER size from an element's clientWidth/clientHeight/getBoundingClientRect at startup: before layout those read 0 and the canvas stays blank forever.
 - Dark slate background (#0f1613). Chalk-white (#f4f1e6) strokes and labels; accents in warm yellow (#ffd23e), coral (#ff6f5e), sky (#5bc8ff), mint (#78e0b0). High contrast, labels ≥15px, colourblind-safe.
 - Top-left: a short bold title (the answer in a few words). Bottom: one caption sentence with the key idea. Label the important parts directly on the canvas.
 - Loop smoothly forever; runs on load with no setup.

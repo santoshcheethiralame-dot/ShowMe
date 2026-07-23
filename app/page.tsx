@@ -26,10 +26,52 @@ const SURPRISES = [
 const SKETCHING = [
   "finding the physics…",
   "sharpening the chalk…",
+  "sketching the first shapes…",
   "drawing the diagram…",
   "labelling the parts…",
   "adding the motion…",
+  "picking better colours…",
+  "double-checking the mechanism…",
+  "getting the angles right…",
+  "making it loop cleanly…",
+  "adding the caption…",
+  "almost there…",
 ];
+
+// Pure waiting-room filler — rotates independently of SKETCHING so the
+// board never repeats the same two lines together.
+const WHILE_YOU_WAIT = [
+  "Every animation is real, running code — canvas and JavaScript, written fresh.",
+  "Nothing here is a stock image. It's a program, built for this exact question.",
+  "3Blue1Brown-style animations used to take weeks. This takes seconds.",
+  "The code streaming in is the actual animation being written, live.",
+  "Guessing before you see the answer is called the pretesting effect — it works.",
+  "Once it's done, you can say \"simpler\" or \"go deeper\" and it redraws.",
+  "Every animation ships with a plain-text version too — try Read it instead.",
+];
+
+/** A well-formed document has a real closing tag, not a stream that got cut off. */
+function isWellFormed(raw: string): boolean {
+  return /<\/html>\s*$/i.test(raw.trim());
+}
+
+/**
+ * Inject a tiny watchdog into the generated document. Errors thrown inside the
+ * sandboxed iframe are otherwise invisible to the parent — a script that throws
+ * halfway through drawing just leaves a blank canvas with no signal anywhere.
+ * This catches that and reports back over postMessage.
+ */
+function withWatchdog(doc: string): string {
+  const watchdog = `<script>(function(){
+    var reported=false;
+    function fail(msg){ if(reported) return; reported=true; try{ parent.postMessage({ showme:true, ok:false, msg:String(msg||"") }, "*"); }catch(e){} }
+    window.onerror=function(msg){ fail(msg); return true; };
+    window.addEventListener("unhandledrejection", function(e){ fail(e.reason); });
+  })();</script>`;
+  if (/<head[^>]*>/i.test(doc)) return doc.replace(/<head[^>]*>/i, (m) => m + watchdog);
+  if (/<html[^>]*>/i.test(doc)) return doc.replace(/<html[^>]*>/i, (m) => m + watchdog);
+  return watchdog + doc;
+}
 
 const FOLLOWUPS = [
   { label: "Simpler", make: (q: string) => `Explain that more simply, like I'm 12: ${q}` },
@@ -62,17 +104,30 @@ export default function Home() {
   const [readMode, setReadMode] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [tick, setTick] = useState(0);
+  const [broken, setBroken] = useState(false);
 
   useEffect(() => {
     if (phase !== "drawing") return;
-    const id = setInterval(() => setTick((t) => t + 1), 1500);
+    const id = setInterval(() => setTick((t) => t + 1), 1400);
     return () => clearInterval(id);
+  }, [phase]);
+
+  // Listen for the watchdog injected into the generated document. If its
+  // script throws, this is how we find out — the iframe itself stays silent.
+  useEffect(() => {
+    if (phase !== "done") return;
+    const onMsg = (e: MessageEvent) => {
+      if (e.data && e.data.showme && e.data.ok === false) setBroken(true);
+    };
+    window.addEventListener("message", onMsg);
+    return () => window.removeEventListener("message", onMsg);
   }, [phase]);
 
   const ask = useCallback(
     async (question: string, priorForThis?: string) => {
       if (!question.trim() || phase === "drawing") return;
       setErr(null);
+      setBroken(false);
       setPhase("drawing");
       setCode("");
       setHtml(null);
@@ -101,12 +156,22 @@ export default function Home() {
           setCode(raw);
         }
 
+        // A stream that got cut off mid-document renders as a blank board.
+        // Catch it here instead of showing an empty frame.
+        if (!isWellFormed(raw)) {
+          setErr("The drawing got cut off mid-stream. Hit Show me to redraw it.");
+          setQ(question);
+          setPhase("idle");
+          return;
+        }
+
         setExplain(extractExplain(raw));
-        setHtml(toDoc(raw));
+        setHtml(withWatchdog(toDoc(raw)));
         setPrior(question);
         setPhase("done");
       } catch {
         setErr("Something broke mid-draw. Try again.");
+        setQ(question);
         setPhase("idle");
       }
     },
@@ -296,6 +361,9 @@ export default function Home() {
               <div className="h-1.5 w-56 overflow-hidden rounded-full border-2 border-line bg-slate">
                 <div className="h-full w-1/3 animate-[slide_1.1s_ease-in-out_infinite] bg-lime" />
               </div>
+              <p className="max-w-md px-6 text-center font-mono text-xs leading-relaxed text-paper/60">
+                {WHILE_YOU_WAIT[Math.floor(tick / 3) % WHILE_YOU_WAIT.length]}
+              </p>
             </div>
 
             <div className="brut mt-4 flex flex-col gap-3 rounded-xl border-[3px] border-ink bg-lime p-4 sm:flex-row sm:items-center sm:gap-5">
@@ -323,7 +391,10 @@ export default function Home() {
         {phase === "done" && html && (
           <figure className="pop m-0">
             <div className="brut-lg overflow-hidden rounded-xl border-[3px] border-ink bg-slate">
-              {!readMode ? (
+              {/* The iframe stays mounted through Watch/Read toggles — remounting
+                  re-runs the generated script and can re-roll a startup race
+                  that leaves the canvas blank. Overlays cover it instead. */}
+              <div className="relative">
                 <iframe
                   key={asked}
                   srcDoc={html}
@@ -331,13 +402,30 @@ export default function Home() {
                   title={`Animated answer to: ${asked}`}
                   className="h-[520px] w-full"
                 />
-              ) : (
-                <div className="flex h-[520px] items-center justify-center p-8">
-                  <p className="max-w-lg text-center text-lg font-semibold leading-relaxed text-paper">
-                    {explain || "No text explanation was provided for this one."}
-                  </p>
-                </div>
-              )}
+                {broken && !readMode && (
+                  <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 bg-slate/95 p-8 text-center">
+                    <p className="font-display text-xl font-bold text-paper">
+                      This drawing hit a snag mid-render.
+                    </p>
+                    <p className="max-w-md font-mono text-sm text-paper/70">
+                      It happens — the code is written fresh every time. One redraw usually fixes it.
+                    </p>
+                    <button
+                      onClick={() => ask(asked, prior)}
+                      className="brut-btn rounded-lg border-[3px] border-ink bg-lime px-6 py-3 font-display font-bold text-ink"
+                    >
+                      Redraw it
+                    </button>
+                  </div>
+                )}
+                {readMode && (
+                  <div className="absolute inset-0 z-20 flex items-center justify-center bg-slate p-8">
+                    <p className="max-w-lg text-center text-lg font-semibold leading-relaxed text-paper">
+                      {explain || "No text explanation was provided for this one."}
+                    </p>
+                  </div>
+                )}
+              </div>
 
               <figcaption className="flex flex-wrap items-center justify-between gap-2 border-t-[3px] border-ink bg-paper px-4 py-2.5 text-xs">
                 <span className="font-semibold text-ink/70">
